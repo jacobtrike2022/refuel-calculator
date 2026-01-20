@@ -66,10 +66,15 @@ export default function Calculator() {
     const avgEmployeesPerStore = inputs.totalEmployees / totalStores;
     const frontlineTurnoverRate = inputs.frontlineTurnover / 100;
 
+    // Both TX and SC use turnover rate (only train new hires)
+    // Calculate full value first, then round to avoid rounding errors
+    const txFrontlineTurnover = Math.round((avgEmployeesPerStore * inputs.storesTX) * frontlineTurnoverRate);
+    const scFrontlineTurnover = Math.round((avgEmployeesPerStore * inputs.storesSC) * frontlineTurnoverRate);
+
     return {
       frontlineTurnoverTotal: Math.round(inputs.totalEmployees * frontlineTurnoverRate),
-      txFrontlineTurnover: Math.round((avgEmployeesPerStore * inputs.storesTX) * frontlineTurnoverRate),
-      scAllEmployees: Math.round(avgEmployeesPerStore * inputs.storesSC),
+      txFrontlineTurnover: txFrontlineTurnover,
+      scFrontlineTurnover: scFrontlineTurnover,
       totalEmployees: inputs.totalEmployees
     };
   }, [inputs, totalStores]);
@@ -259,7 +264,7 @@ export default function Calculator() {
   const rtoCoreAnnualCost = state.rtoCoreChildren.reduce((sum, c) => sum + ((c.cost || 0) * pops.frontlineTurnoverTotal), 0);
   const rtoTXTABCCostTotal = inputs.rtoTXTABCCost * pops.txFrontlineTurnover;
   const rtoTXFHCostTotal = inputs.rtoTXFHCost * pops.txFrontlineTurnover;
-  const rtoSCFHCostTotal = inputs.rtoSCFHCost * pops.scAllEmployees;
+  const rtoSCFHCostTotal = inputs.rtoSCFHCost * pops.scFrontlineTurnover;
   const rtoCoursesTotal = rtoCoreAnnualCost + rtoTXTABCCostTotal + rtoTXFHCostTotal + rtoSCFHCostTotal;
   const rtoToolsTotal = state.rtoTools.reduce((sum, t) => sum + (t.cost || 0), 0);
   const rtoGrandTotal = rtoPlatformAnnual + rtoCoursesTotal + rtoToolsTotal;
@@ -268,14 +273,14 @@ export default function Calculator() {
   const rtoCoreHoursTotal = rtoCoreHours * pops.frontlineTurnoverTotal;
   const rtoTXTABCHoursTotal = inputs.rtoTXTABCHours * pops.txFrontlineTurnover;
   const rtoTXFHHoursTotal = inputs.rtoTXFHHours * pops.txFrontlineTurnover;
-  const rtoSCFHHoursTotal = inputs.rtoSCFHHours * pops.scAllEmployees;
+  const rtoSCFHHoursTotal = inputs.rtoSCFHHours * pops.scFrontlineTurnover;
   const rtoTotalHours = rtoCoreHoursTotal + rtoTXTABCHoursTotal + rtoTXFHHoursTotal + rtoSCFHHoursTotal;
 
   // Trike Calculations
   const trikePlatformAnnual = inputs.trikePlatformCost * totalStores * 12;
   const trikeTXTABCCostTotal = inputs.trikeTXTABCCost * pops.txFrontlineTurnover;
   const trikeTXFHCostTotal = inputs.trikeTXFHCost * pops.txFrontlineTurnover;
-  const trikeSCFHCostTotal = inputs.trikeSCFHCost * pops.scAllEmployees;
+  const trikeSCFHCostTotal = inputs.trikeSCFHCost * pops.scFrontlineTurnover;
   const trikeCoursesTotal = trikeTXTABCCostTotal + trikeTXFHCostTotal + trikeSCFHCostTotal;
   const trikeGrandTotal = trikePlatformAnnual + trikeCoursesTotal;
 
@@ -283,7 +288,7 @@ export default function Calculator() {
   const trikeCoreHoursTotal = trikeCoreHours * pops.frontlineTurnoverTotal;
   const trikeTXTABCHoursTotal = inputs.trikeTXTABCHours * pops.txFrontlineTurnover;
   const trikeTXFHHoursTotal = inputs.trikeTXFHHours * pops.txFrontlineTurnover;
-  const trikeSCFHHoursTotal = inputs.trikeSCFHHours * pops.scAllEmployees;
+  const trikeSCFHHoursTotal = inputs.trikeSCFHHours * pops.scFrontlineTurnover;
   const trikeTotalHours = trikeCoreHoursTotal + trikeTXTABCHoursTotal + trikeTXFHHoursTotal + trikeSCFHHoursTotal;
 
   // Savings
@@ -294,20 +299,21 @@ export default function Calculator() {
   const roiMultiple = trikeGrandTotal > 0 ? (totalSavingsValue / trikeGrandTotal).toFixed(1) : 0;
 
   // Calculate weighted average cert hours per employee based on state populations
-  // TX employees: get TX TABC + TX Food Handler
-  // SC employees: get SC Food Handler
+  // TX employees: get TX TABC + TX Food Handler (turnover-based)
+  // SC employees: get SC Food Handler (turnover-based)
   // NC/MS/AR employees: get 0 cert hours
   const txCertHoursRTO = inputs.rtoTXTABCHours + inputs.rtoTXFHHours;
   const scCertHoursRTO = inputs.rtoSCFHHours;
   const txCertHoursTrike = inputs.trikeTXTABCHours + inputs.trikeTXFHHours;
   const scCertHoursTrike = inputs.trikeSCFHHours;
 
-  // Weighted average: (TX employees * TX hours + SC employees * SC hours) / total employees trained
+  // Weighted average: (TX employees * TX hours + SC employees * SC hours) / total employees who need certs
+  // Both TX and SC use turnover rate, so we can use frontlineTurnoverTotal as the denominator
   const rtoWeightedCertHours = pops.frontlineTurnoverTotal > 0
-    ? ((pops.txFrontlineTurnover * txCertHoursRTO) + (pops.scAllEmployees * scCertHoursRTO)) / pops.frontlineTurnoverTotal
+    ? ((pops.txFrontlineTurnover * txCertHoursRTO) + (pops.scFrontlineTurnover * scCertHoursRTO)) / pops.frontlineTurnoverTotal
     : 0;
   const trikeWeightedCertHours = pops.frontlineTurnoverTotal > 0
-    ? ((pops.txFrontlineTurnover * txCertHoursTrike) + (pops.scAllEmployees * scCertHoursTrike)) / pops.frontlineTurnoverTotal
+    ? ((pops.txFrontlineTurnover * txCertHoursTrike) + (pops.scFrontlineTurnover * scCertHoursTrike)) / pops.frontlineTurnoverTotal
     : 0;
 
   // Per-employee hours (using weighted averages for certs)
@@ -470,8 +476,8 @@ export default function Calculator() {
             </tr>
             <tr>
               <td>SC Food Handler</td>
-              <td style={{fontSize: '12px', color: '#888'}}>SC All Employees</td>
-              <td>{pops.scAllEmployees}</td>
+              <td style={{fontSize: '12px', color: '#888'}}>SC Frontline Turnover</td>
+              <td>{pops.scFrontlineTurnover}</td>
               <td><div className="currency-wrapper"><input type="number" step="0.01" value={inputs.rtoSCFHCost} onChange={(e) => updateInput('rtoSCFHCost', e.target.value)} /></div></td>
               <td><input type="number" step="0.1" value={inputs.rtoSCFHHours} onChange={(e) => updateInput('rtoSCFHHours', e.target.value)} /></td>
               <td></td>
@@ -588,8 +594,8 @@ export default function Calculator() {
             </tr>
             <tr>
               <td>SC Food Handler (incremental)</td>
-              <td style={{fontSize: '12px', color: '#888'}}>SC All Employees</td>
-              <td>{pops.scAllEmployees}</td>
+              <td style={{fontSize: '12px', color: '#888'}}>SC Frontline Turnover</td>
+              <td>{pops.scFrontlineTurnover}</td>
               <td><div className="currency-wrapper"><input type="number" step="0.01" value={inputs.trikeSCFHCost} onChange={(e) => updateInput('trikeSCFHCost', e.target.value)} /></div></td>
               <td><input type="number" step="0.1" value={inputs.trikeSCFHHours} onChange={(e) => updateInput('trikeSCFHHours', e.target.value)} /></td>
               <td></td>
