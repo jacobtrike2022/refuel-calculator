@@ -290,18 +290,35 @@ export default function Calculator() {
   const totalSavingsValue = directSavings + laborSavings;
   const roiMultiple = trikeGrandTotal > 0 ? (totalSavingsValue / trikeGrandTotal).toFixed(1) : 0;
 
-  // Per-employee hours
-  const rtoHoursPerEmployee = rtoCoreHours + inputs.rtoTXTABCHours + inputs.rtoTXFHHours + inputs.rtoSCFHHours;
-  const trikeHoursPerEmployee = trikeCoreHours + inputs.trikeTXTABCHours + inputs.trikeTXFHHours + inputs.trikeSCFHHours;
+  // Calculate weighted average cert hours per employee based on state populations
+  // TX employees: get TX TABC + TX Food Handler
+  // SC employees: get SC Food Handler
+  // NC/MS/AR employees: get 0 cert hours
+  const txCertHoursRTO = inputs.rtoTXTABCHours + inputs.rtoTXFHHours;
+  const scCertHoursRTO = inputs.rtoSCFHHours;
+  const txCertHoursTrike = inputs.trikeTXTABCHours + inputs.trikeTXFHHours;
+  const scCertHoursTrike = inputs.trikeSCFHHours;
+
+  // Weighted average: (TX employees * TX hours + SC employees * SC hours) / total employees trained
+  const rtoWeightedCertHours = pops.frontlineTurnoverTotal > 0
+    ? ((pops.txFrontlineTurnover * txCertHoursRTO) + (pops.scAllEmployees * scCertHoursRTO)) / pops.frontlineTurnoverTotal
+    : 0;
+  const trikeWeightedCertHours = pops.frontlineTurnoverTotal > 0
+    ? ((pops.txFrontlineTurnover * txCertHoursTrike) + (pops.scAllEmployees * scCertHoursTrike)) / pops.frontlineTurnoverTotal
+    : 0;
+
+  // Per-employee hours (using weighted averages for certs)
+  const rtoHoursPerEmployee = rtoCoreHours + rtoWeightedCertHours;
+  const trikeHoursPerEmployee = trikeCoreHours + trikeWeightedCertHours;
 
   // Chart calculations
   const maxCost = Math.max(rtoGrandTotal, trikeGrandTotal, 1);
   const maxHours = Math.max(rtoHoursPerEmployee, trikeHoursPerEmployee, 1);
   const timeSavingsPercent = rtoHoursPerEmployee > 0 ? Math.round(((rtoHoursPerEmployee - trikeHoursPerEmployee) / rtoHoursPerEmployee) * 100) : 0;
 
-  // Labor section calculations
-  const rtoCertHoursPerEmp = inputs.rtoTXTABCHours + inputs.rtoTXFHHours + inputs.rtoSCFHHours;
-  const trikeCertHoursPerEmp = inputs.trikeTXTABCHours + inputs.trikeTXFHHours + inputs.trikeSCFHHours;
+  // Labor section calculations (using weighted cert hours)
+  const rtoCertHoursPerEmp = rtoWeightedCertHours;
+  const trikeCertHoursPerEmp = trikeWeightedCertHours;
   const hoursSavedPerEmp = rtoHoursPerEmployee - trikeHoursPerEmployee;
   const timeReduction = rtoHoursPerEmployee > 0 ? Math.round((hoursSavedPerEmp / rtoHoursPerEmployee) * 100) : 0;
   const savingsPerEmployee = pops.frontlineTurnoverTotal > 0 ? laborSavings / pops.frontlineTurnoverTotal : 0;
@@ -694,11 +711,11 @@ export default function Calculator() {
               <span className="labor-calc-value">{rtoCoreHours.toFixed(2)} hrs</span>
             </div>
             <div className="labor-calc-row">
-              <span className="labor-calc-label">+ State Cert Hours/Employee</span>
+              <span className="labor-calc-label">+ Avg State Cert Hours/Employee</span>
               <span className="labor-calc-value">{rtoCertHoursPerEmp.toFixed(2)} hrs</span>
             </div>
             <div className="labor-calc-row">
-              <span className="labor-calc-label">= Total Hours/Employee</span>
+              <span className="labor-calc-label">= Avg Total Hours/Employee</span>
               <span className="labor-calc-value highlight">{rtoHoursPerEmployee.toFixed(2)} hrs</span>
             </div>
 
@@ -732,11 +749,11 @@ export default function Calculator() {
               <span className="labor-calc-value">{trikeCoreHours.toFixed(2)} hrs</span>
             </div>
             <div className="labor-calc-row">
-              <span className="labor-calc-label">+ State Cert Hours/Employee</span>
+              <span className="labor-calc-label">+ Avg State Cert Hours/Employee</span>
               <span className="labor-calc-value">{trikeCertHoursPerEmp.toFixed(2)} hrs</span>
             </div>
             <div className="labor-calc-row">
-              <span className="labor-calc-label">= Total Hours/Employee</span>
+              <span className="labor-calc-label">= Avg Total Hours/Employee</span>
               <span className="labor-calc-value highlight">{trikeHoursPerEmployee.toFixed(2)} hrs</span>
             </div>
 
@@ -771,7 +788,7 @@ export default function Calculator() {
             </div>
 
             <div className="labor-calc-row">
-              <span className="labor-calc-label">Hours Saved/Employee</span>
+              <span className="labor-calc-label">Avg Hours Saved/Employee</span>
               <span className="labor-calc-value success">{hoursSavedPerEmp.toFixed(2)} hrs</span>
             </div>
             <div className="labor-calc-row">
