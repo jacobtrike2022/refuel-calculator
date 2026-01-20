@@ -241,8 +241,11 @@ export default function Calculator() {
     }));
   };
 
-  // Format currency
+  // Format currency - round to whole dollars for values >= $100
   const formatCurrency = (value) => {
+    if (Math.abs(value) >= 100) {
+      return '$' + Math.round(value).toLocaleString('en-US');
+    }
     return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
