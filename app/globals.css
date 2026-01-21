@@ -24,8 +24,84 @@ h1 {
 
 .subtitle {
     color: #888;
-    margin-bottom: 40px;
+    margin-bottom: 0;
     font-size: 14px;
+}
+
+/* Top Header with Logo */
+.top-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+    gap: 20px;
+}
+
+.top-header-left {
+    flex: 1;
+}
+
+.top-header-left h1 {
+    margin-bottom: 8px;
+}
+
+.top-header-left .subtitle {
+    margin-bottom: 0;
+}
+
+.top-header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.header-logo {
+    height: 60px;
+    width: auto;
+}
+
+.export-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #ff6b35;
+    color: white;
+}
+
+.export-btn:hover {
+    background: #ff8c5a;
+}
+
+.export-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.export-btn-secondary {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #444;
+    color: #e5e5e5;
+}
+
+.export-btn-secondary:hover {
+    background: #555;
+}
+
+.export-btn-secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 .section {
@@ -880,4 +956,730 @@ button.secondary:hover {
 
 .save-status.error {
     color: #ef4444;
+}
+
+/* ============================================
+   PDF EXPORT STYLES - Professional Print Layout
+   ============================================ */
+
+.print-container {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    width: 1100px;
+    background: #ffffff;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.print-page {
+    padding: 40px 48px;
+    color: #1a1a1a;
+    background: #ffffff;
+    min-height: auto;
+}
+
+/* Header */
+.print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 3px solid #ff6b35;
+}
+
+.print-header-left {
+    flex: 1;
+}
+
+.print-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin: 0 0 4px 0;
+    letter-spacing: -0.5px;
+}
+
+.print-subtitle {
+    font-size: 16px;
+    color: #ff6b35;
+    font-weight: 600;
+    margin: 0 0 2px 0;
+}
+
+.print-date {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+}
+
+.print-header-right {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.print-logo {
+    height: 80px;
+    width: auto;
+    max-width: 200px;
+}
+
+/* Small header for page 2 */
+.print-header-small {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #e5e5e5;
+}
+
+.print-header-small-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #666;
+}
+
+.print-logo-small {
+    height: 36px;
+    width: auto;
+}
+
+/* Compact Org Summary */
+.print-org-summary {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #444;
+}
+
+.print-org-summary .divider {
+    color: #ccc;
+}
+
+.print-org-summary strong {
+    color: #1a1a1a;
+    font-weight: 700;
+}
+
+/* Executive Summary Banner */
+.print-summary-banner {
+    background: linear-gradient(135deg, #ff6b35 0%, #ff4500 100%);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    color: white;
+}
+
+.print-summary-main {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.print-summary-label {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    opacity: 0.95;
+    margin-bottom: 6px;
+}
+
+.print-summary-value {
+    font-size: 44px;
+    font-weight: 700;
+    letter-spacing: -1px;
+}
+
+.print-summary-breakdown {
+    display: flex;
+    justify-content: center;
+    gap: 48px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.3);
+}
+
+.print-summary-item {
+    text-align: center;
+}
+
+.print-summary-item .label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+    margin-bottom: 4px;
+}
+
+.print-summary-item .value {
+    font-size: 24px;
+    font-weight: 700;
+}
+
+/* Sections */
+.print-section {
+    margin-bottom: 20px;
+}
+
+.print-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0 0 12px 0;
+    padding-bottom: 6px;
+    border-bottom: 2px solid #e5e5e5;
+}
+
+/* Metrics Grid */
+.print-metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.print-metric {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    border: 1px solid #e5e5e5;
+}
+
+.print-metric .label {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+.print-metric .value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* Comparison Table */
+.print-comparison-table {
+    background: #f8f8f8;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e5e5e5;
+}
+
+.print-comparison-header {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1fr;
+    background: #1a1a1a;
+    color: white;
+    padding: 14px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.print-comparison-row {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.5fr 1fr;
+    padding: 14px 20px;
+    border-bottom: 1px solid #e5e5e5;
+    font-size: 14px;
+    background: white;
+}
+
+.print-comparison-row:last-child {
+    border-bottom: none;
+}
+
+.print-comparison-row .label {
+    font-weight: 500;
+    color: #444;
+}
+
+.print-comparison-row .savings {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.print-comparison-row .included {
+    color: #10b981;
+    font-weight: 600;
+}
+
+.print-comparison-row .highlight {
+    font-weight: 700;
+}
+
+.print-comparison-row.total {
+    background: #f0f0f0;
+    font-weight: 600;
+    font-size: 15px;
+}
+
+.print-comparison-row.total .label {
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+/* Labor Grid */
+.print-labor-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.print-labor-card {
+    background: #f8f8f8;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e5e5e5;
+}
+
+.print-labor-card.highlight {
+    background: #fff8f5;
+    border-color: #ff6b35;
+}
+
+.print-labor-card.savings {
+    background: #f0fdf4;
+    border-color: #10b981;
+}
+
+.print-labor-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 14px 0;
+}
+
+.print-labor-card.highlight h3 {
+    color: #ff6b35;
+}
+
+.print-labor-card.savings h3 {
+    color: #10b981;
+}
+
+.print-labor-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    font-size: 13px;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.print-labor-row:last-child {
+    border-bottom: none;
+}
+
+.print-labor-row.total {
+    border-top: 2px solid #ddd;
+    border-bottom: none;
+    padding-top: 12px;
+    margin-top: 4px;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.print-labor-card.savings .print-labor-row span:last-child {
+    color: #10b981;
+    font-weight: 600;
+}
+
+/* Training Table */
+.print-training-table {
+    background: #f8f8f8;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid #e5e5e5;
+}
+
+.print-training-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    background: #1a1a1a;
+    color: white;
+    padding: 14px 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.print-training-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    padding: 14px 20px;
+    border-bottom: 1px solid #e5e5e5;
+    font-size: 14px;
+    background: white;
+}
+
+.print-training-row:last-child {
+    border-bottom: none;
+}
+
+.print-training-row .savings {
+    color: #10b981;
+    font-weight: 600;
+}
+
+/* Footer */
+.print-footer {
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e5e5;
+    text-align: center;
+}
+
+.print-footer p {
+    font-size: 11px;
+    color: #888;
+    margin: 4px 0;
+}
+
+/* Button disabled state */
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Page Break - Creates proper page separation for PDF */
+.print-page-break {
+    height: 80px;
+    margin: 40px 0 20px 0;
+    page-break-before: always;
+    break-before: page;
+}
+
+/* ============================================
+   PAGE 2 - VISUAL CHARTS
+   ============================================ */
+
+/* Bar Chart */
+.print-chart-container {
+    background: #f8f8f8;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #e5e5e5;
+}
+
+.print-bar-chart {
+    margin-bottom: 16px;
+}
+
+.print-bar-row {
+    margin-bottom: 20px;
+}
+
+.print-bar-row:last-child {
+    margin-bottom: 0;
+}
+
+.print-bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.print-bar-label .name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #444;
+}
+
+.print-bar-label .amount {
+    font-size: 18px;
+    font-weight: 700;
+    color: #1a1a1a;
+}
+
+.print-bar-track {
+    height: 32px;
+    background: #e5e5e5;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.print-bar {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.3s ease;
+}
+
+.print-bar.rto {
+    background: linear-gradient(90deg, #666 0%, #888 100%);
+}
+
+.print-bar.trike {
+    background: linear-gradient(90deg, #ff4500 0%, #ff6b35 100%);
+}
+
+.print-chart-legend {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e5e5;
+}
+
+.print-chart-legend .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #666;
+}
+
+.print-chart-legend .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+.print-chart-legend .dot.platform {
+    background: #888;
+}
+
+.print-chart-legend .dot.labor {
+    background: #ff6b35;
+}
+
+/* Stacked Bar Chart */
+.print-stacked-chart {
+    background: #f8f8f8;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #e5e5e5;
+}
+
+.print-stacked-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.print-stacked-row:last-child {
+    margin-bottom: 0;
+}
+
+.print-stacked-label {
+    width: 80px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #444;
+    flex-shrink: 0;
+}
+
+.print-stacked-bars {
+    flex: 1;
+    height: 40px;
+    display: flex;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.print-stacked-segment {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    position: relative;
+}
+
+.print-stacked-segment .segment-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.print-stacked-segment.platform {
+    background: #1a1a1a;
+}
+
+.print-stacked-segment.training {
+    background: #444;
+}
+
+.print-stacked-segment.tools {
+    background: #888;
+}
+
+.print-stacked-segment.labor {
+    background: linear-gradient(90deg, #ff4500 0%, #ff6b35 100%);
+}
+
+.print-stacked-total {
+    width: 100px;
+    text-align: right;
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    flex-shrink: 0;
+}
+
+.print-stacked-legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 16px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e5e5;
+    font-size: 12px;
+    color: #666;
+}
+
+.print-stacked-legend span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.print-stacked-legend .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+}
+
+.print-stacked-legend .dot.platform {
+    background: #1a1a1a;
+}
+
+.print-stacked-legend .dot.training {
+    background: #444;
+}
+
+.print-stacked-legend .dot.tools {
+    background: #888;
+}
+
+.print-stacked-legend .dot.labor {
+    background: #ff6b35;
+}
+
+/* 3-Year Projection Chart */
+.print-projection-chart {
+    background: #f8f8f8;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #e5e5e5;
+}
+
+.print-projection-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.print-projection-year {
+    text-align: center;
+}
+
+.print-projection-year .year-label {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 12px;
+}
+
+.print-projection-year .year-bars {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    height: 160px;
+    align-items: flex-end;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+}
+
+.print-projection-year .year-bar {
+    width: 70px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.print-projection-year .year-bar .bar-value {
+    font-size: 10px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 4px;
+    white-space: nowrap;
+}
+
+.print-projection-year .year-bar .bar-fill {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    min-height: 30px;
+}
+
+.print-projection-year .year-bar.rto .bar-fill {
+    background: linear-gradient(180deg, #888 0%, #666 100%);
+}
+
+.print-projection-year .year-bar.trike .bar-fill {
+    background: linear-gradient(180deg, #ff6b35 0%, #ff4500 100%);
+}
+
+.print-projection-year .year-bar .bar-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #666;
+    margin-top: 6px;
+}
+
+.print-projection-year .year-savings {
+    font-size: 14px;
+    font-weight: 700;
+    color: #10b981;
+    padding: 8px 12px;
+    background: rgba(16, 185, 129, 0.1);
+    border-radius: 6px;
+    display: inline-block;
+}
+
+.print-projection-summary {
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 2px solid #e5e5e5;
+    text-align: center;
+}
+
+.print-projection-summary .projection-total {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    padding: 16px 40px;
+    border-radius: 12px;
+    color: white;
+}
+
+.print-projection-summary .projection-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.9;
+    margin-bottom: 4px;
+}
+
+.print-projection-summary .projection-value {
+    font-size: 32px;
+    font-weight: 700;
 }

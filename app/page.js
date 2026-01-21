@@ -1,7 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 import './globals.css';
+
+// Base64 encoded Trike logo for reliable PDF rendering
+const TRIKE_LOGO_BASE64 = 'data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz48c3ZnIGlkPSJMYXllcl8yIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTI5LjM1IDM4My43OCI+PGRlZnM+PHN0eWxlPi5jbHMtMXtmaWxsOiNmZjczM2M7fTwvc3R5bGU+PC9kZWZzPjxnIGlkPSJMYXllcl8xLTIiPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0ibTY3Ni4zNSw5OS41MWMwLDkuMjMtOS4yMywyMC4xNC0yMy40OSwyMC4xNGgtOS4yM2MtMjMuMjIsMi41Mi0zMC40OSwxNC41NS01MS43NSw2Ni44NWwtMzkuMTYsOTYuMjItMTAuMDcsMjQuMzNjLTUuMDMsMTIuMzEtMTMuOTksMTcuMDYtMjEuODIsMTcuMDYtOC45NSwwLTE2LjUtNS44Ny0xNi41LTE1Ljk0LDAtMy4wOC41Ni02LjE1LDEuOTYtOS43OWw2LjQzLTE1LjY2LDM5LjE2LTk1Ljk0YzE0LjI3LTM0LjY4LDI1LjQ1LTU1LjM4LDQwLjg0LTY3LjEzaC01MC42M2MtMzMsMC00OC42Nyw4LjM5LTQ4LjY3LDI1LjczczE5Ljg2LDEzLjk5LDE5Ljg2LDI5LjA5YzAsOC45NS02LjE1LDE2LjIyLTE1LjM4LDE2LjIyLTIzLjc3LDAtMzkuMTYtMjAuNy0zOS4xNi00My4wOCwwLTI4LjgxLDI0LjYxLTYxLjUzLDg1LjAzLTYxLjgxaDExNC42OGMxMi4zMSwwLDE3LjksNi40MywxNy45LDEzLjcxWiIvPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0ibTc5NS4yMiwyMzQuMDRjLTIuOCw3LjI3LTUuNiwxMy45OS04LjY3LDIxLjI2LTE1LjY2LDM2LjkyLTM0LjQsNTQuMjYtNjYuMjksNTQuMjYtMjIuMSwwLTM5LjcyLTEzLjQzLTM5LjcyLTMyLjczLDAtOC42NywzLjkyLTE5LjU4LDE1LjY2LTQ4LjExbDkuNzktMjMuNzdjLjU2LTEuNjgsMS4xMi0yLjgsMS4xMi0zLjkyLDAtMy4wOC0xLjY4LTUuMDQtNC43Ni02LjQzbC0xOS4wMi04LjM5LTE5LjU4LDQ4Ljk1Yy0yLjI0LDYuMTUtNi45OSw4LjY3LTExLjc1LDguNjctNS44NywwLTExLjc1LTMuOTItMTEuNzUtMTAuOTEsMC0xLjY4LjI4LTMuMDgsMS4xMi01LjMyLDMuMDgtNy4yNywxMS4xOS0yNy42OSwyMC45OC01MS43NS04LjM5LTUuNTktMTIuNTktMTQuNTQtMTIuNTktMjMuNDksMC0xNy4wNiwxMi4wMy0yNS43MywyNC4wNS0yNS43MywxMy45OSwwLDIxLjgyLDEwLjYzLDIxLjgyLDIyLjk0LDAsMS4xMiwwLDIuMjQtLjI4LDMuNjRsMzguMDQsMTYuMjJjMTAuNjMsNC43NiwxNS45NCwxMS43NSwxNS45NCwyMC43LDAsMy42NC0uODQsNy41NS0yLjUyLDEyLjAzbC0xMC42MywyNi41N2MtNy44MywxOC40Ni0xMS40NywyOC4yNS0xMi44NywzMS42MS0zLjkyLDEwLjkxLjU2LDIwLjE0LDEwLjA3LDIwLjE0czIwLjctOC45NSwyOS4wOS0yOS4wOWMxLjY4LTMuNjQsNC40OC0xMC42MywxMC4zNS0yNC44OSwzLjM2LTcuODMsOC4zOS0xMC42MywxNS42Ni04LjM5LDcuMjcsMi4yNCw5Ljc5LDguMTEsNi43MSwxNS45NFoiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Im04NzAuNDYsMjM0LjA0Yy0yLjgsNy4yNy01LjU5LDEzLjk5LTguNjcsMjEuMjYtMTUuNjYsMzYuOTItMzQuNCw1NC4yNi02Ni4yOSw1NC4yNi0yMi4xLDAtMzkuNzItMTMuNDMtMzkuNzItMzIuNzMsMC04LjY3LDMuOTItMTkuNTgsMTUuNjYtNDguMTFsMjEuODItNTMuN2M1LjU5LTEzLjQzLDE0LjI2LTE5LjAyLDIyLjM4LTE5LjAyLDguNjcsMCwxNi4yMiw2Ljk5LDE2LjIyLDE3LjM0LDAsMy4zNi0uNTYsNi43MS0yLjI0LDEwLjYzbC0yLjUyLDYuMTUtMTUuNjYsMzguNmMtNy44MywxOC40Ni0xMS40NywyOC4yNS0xMi44NywzMS42MS0zLjkyLDEwLjkxLjU2LDIwLjE0LDEwLjA3LDIwLjE0czIwLjctOC45NSwyOS4wOS0yOS4wOWMxLjY4LTMuNjQsNC40OC0xMC42MywxMC4zNS0yNC44OSwzLjM2LTcuODMsOC4zOS0xMC42MywxNS42Ni04LjM5czkuNzksOC4xMSw2LjcxLDE1Ljk0Wm0tNTcuMzQtMTEyLjQ0YzAtMTIuMDMsOS41MS0yMS41NCwyMS4yNi0yMS41NHMyMS4yNiw5LjUxLDIxLjI2LDIxLjU0LTkuNTEsMjEuMjYtMjEuMjYsMjEuMjYtMjEuMjYtOS41MS0yMS4yNi0yMS4yNloiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Im05NzUuMzUsMTcwLjI3YzAsNS41OS0zLjA4LDEyLjMxLTEwLjM1LDE4LjQ2bC0zNC42OCwyOC4yNSwyMi4xLDY0LjMzYy44NCwyLjgsMS4xMiw1LjMyLDEuMTIsNy41NSwwLDEyLjg3LTEwLjA3LDIwLjctMjAuMTQsMjAuNy03LjI3LDAtMTQuODMtNC40OC0xNy45LTEzLjk5bC0yNS40NS03NC45Ni0xOS4zLDQ3LjU1LTEwLjA3LDI0LjMzYy01LjA0LDEyLjMxLTEzLjk5LDE3LjA2LTIxLjgyLDE3LjA2LTguOTUsMC0xNi41LTUuODctMTYuNS0xNS45NCwwLTMuMDguNTYtNi4xNSwxLjk2LTkuNzlsNi40My0xNS42Niw3My4yOC0xODAuNDFjNS41OS0xMy40MywxNC4yNy0xOS4wMiwyMi4zOC0xOS4wMiw4LjY3LDAsMTYuMjIsNi45OSwxNi4yMiwxNy4zNCwwLDMuMzYtLjU2LDYuNzEtMi4yNCwxMC42M2wtMi41Miw2LjE1LTM4LjMyLDk0LjU0LDQyLjc5LTM0LjEyYzYuNDMtNS4wNCwxMi41OS03LjI3LDE3LjktNy4yNyw4Ljk1LDAsMTUuMSw2LjE1LDE1LjEsMTQuMjdaIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJtMTEyOC4wNywyMzQuMDRsLTYuNzEsMTYuNWMtMTguMTgsNDYuNDMtNTQuNTQsNjAuOTgtODYuNzEsNjAuOTgtNDIuOCwwLTYzLjc3LTIyLjk0LTYzLjc3LTUzLjcsMC00Ni4xNSwzOS40NC0xMDMuNDksODUuODctMTAzLjc3LDI2LjU3LDAsMzkuNDQsMTUuOTQsMzkuNDQsMzMuNTYsMCwyMC40Mi0xNy42Miw0Mi44LTUxLjQ3LDQyLjhoLTI4LjUzYy0yLjUyLDguMTEtNC4yLDE2LjUtNC4yLDI0LjA1LDAsMTYuMjIsOS43OSwyNy45NywzMC4yMSwyNy45N3M0NS4wMy0xMC4wNyw1OC40Ni00My45MWw1LjA0LTEyLjAzYzMuMzYtNy44Myw4LjM5LTEwLjYzLDE1LjY2LTguMzksNy4yNywyLjI0LDkuNzksOC4xMSw2LjcxLDE1Ljk0Wm0tMTAxLjUzLTI2Ljg1aDE3LjYyYzE0LjI3LDAsMjEuNTQtNy44MywyMS41NC0xNC44MiwwLTUuMDQtMy4zNi05LjIzLTExLjQ3LTkuMjMtOC45NSwwLTE5LjMsMTAuMDctMjcuNjksMjQuMDVaIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJtMzE2Ljg1LDIyNy43MWMwLTE2LjQ2LDguOTYtMzAuODEsMjIuMjYtMzguNDctNC45Mi0xMi40My0xMS0yMy44MS0xNy43OC0zNC4xN2gyMC4yOWM1Ljg0LDAsMTAuNTgtNC43NCwxMC41OC0xMC41OHMtNC43NC0xMC41OC0xMC41OC0xMC41OGgtMzYuMTdjLTI3LjEyLTMxLjg4LTU4Ljk4LTUxLjE0LTc0LjcxLTU5LjQxbC0xMC44OCwzOS43YzMyLjY3LDExLjc2LDU1LjgsNDMuNTUsNTQuNTQsODAuNTYtMS40NCw0Mi41My0zNS41NSw3Ny4zMy03OC4wNCw3OS41Ni00Ny42MSwyLjUxLTg3LjAyLTM1LjM2LTg3LjAyLTgyLjQ0czM2Ljk2LTgyLjU1LDgyLjU2LTgyLjU1YzMuMiwwLDYuMzYuMiw5LjQ3LjU2bDEwLjgxLTM5LjQzaC0zMC44N2MtNS4yNCwwLTkuNS00LjI1LTkuNS05LjVzNC4yNC05LjQ4LDkuNDctOS41bDE0MC45NS0uNHMtLjA2LS4wNS0uMDktLjA4aDI3LjM5YzUuODQsMCwxMC41OC00Ljc0LDEwLjU4LTEwLjU4cy00Ljc0LTEwLjU4LTEwLjU4LTEwLjU4aC01NC44N0MyNjQuNjMsMTAuNzMsMjI4Ljk0LS4yMywxOTAuNjYsMCw4NC44NS42NywwLDg2LjA4LDAsMTkxLjg5czg1LjkyLDE5MS44OSwxOTEuODksMTkxLjg5Yzc3LjQ2LDAsMTQ0LjItNDUuOTEsMTc0LjUxLTExMi0xLjcuMi0zLjQyLjMyLTUuMTguMzItMjQuNTEsMC00NC4zNy0xOS44Ny00NC4zNy00NC4zOFoiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Im0xODQuMTUsMTcyLjY2bDguMTktMjkuODVjLS4xNSwwLS4yOS0uMDEtLjQ0LS4wMS0yNy4xMSwwLTQ5LjA5LDIxLjk4LTQ5LjA5LDQ5LjA5czIxLjk4LDQ5LjA5LDQ5LjA5LDQ5LjA5LDQ5LjA5LTIxLjk4LDQ5LjA5LTQ5LjA5YzAtMjAuMzUtMTIuMzktMzcuODEtMzAuMDMtNDUuMjRsLTcuNzQsMjguMjNjMy41NSwzLjEsNS43OCw3LjY2LDUuNzgsMTIuNzQsMCw5LjM1LTcuNTgsMTYuOTItMTYuOTIsMTYuOTJzLTE2LjkyLTcuNTgtMTYuOTItMTYuOTJjMC02LjQ4LDMuNjUtMTIuMTIsOS0xNC45NVoiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Im0zNzcuODgsMjE4LjJjLTMuMzYtNi4wNS05LjgyLTEwLjE0LTE3LjIzLTEwLjE0LTEwLjg4LDAtMTkuNyw4LjgzLTE5LjcsMTkuNzFzOC44MiwxOS43MSwxOS43LDE5LjcxYzguODksMCwxNi40My01LjksMTguODctMTQsLjA4LS4yNS4xNi0uNTIuMjItLjc4LjQzLTEuNTkuNjYtMy4yNy42Ni00Ljk5LDAtMy4wMi0uNzEtNS44OS0xLjk2LTguNDMtLjE4LS4zNy0uMzctLjczLS41Ny0xLjA5WiIvPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0ibTM5Ny42Miw3OS41NGgtODhjLTUuODQsMC0xMC41OCw0Ljc0LTEwLjU4LDEwLjU4czQuNzQsMTAuNTgsMTAuNTgsMTAuNThoODhjNS44NCwwLDEwLjU4LTQuNzQsMTAuNTgtMTAuNThzLTQuNzQtMTAuNTgtMTAuNTgtMTAuNThaIi8+PHBhdGggY2xhc3M9ImNscy0xIiBkPSJtMzc2LjAzLDUwLjEyYzUuNywwLDEwLjMyLTQuNjIsMTAuMzItMTAuMzJzLTQuNjItMTAuMzItMTAuMzItMTAuMzItMTAuMzIsNC42Mi0xMC4zMiwxMC4zMiw0LjYyLDEwLjMyLDEwLjMyLDEwLjMyWiIvPjxwYXRoIGNsYXNzPSJjbHMtMSIgZD0ibTQyNS4wNiw4MC4wNmMtNS43LDAtMTAuMzIsNC42Mi0xMC4zMiwxMC4zMnM0LjYyLDEwLjMyLDEwLjMyLDEwLjMyLDEwLjMyLTQuNjIsMTAuMzItMTAuMzItNC42Mi0xMC4zMi0xMC4zMi0xMC4zMloiLz48cGF0aCBjbGFzcz0iY2xzLTEiIGQ9Im0zNzAuMDksMTM1LjI4Yy01LjcsMC0xMC4zMiw0LjYyLTEwLjMyLDEwLjMyczQuNjIsMTAuMzIsMTAuMzIsMTAuMzIsMTAuMzItNC42MiwxMC4zMi0xMC4zMi00LjYyLTEwLjMyLTEwLjMyLTEwLjMyWiIvPjwvZz48L3N2Zz4=';
 
 const defaultState = {
   rtoCoreChildren: [
@@ -57,6 +62,8 @@ export default function Calculator() {
   const [loading, setLoading] = useState(true);
   const [saveStatus, setSaveStatus] = useState('');
   const [lastSaved, setLastSaved] = useState(null);
+  const [exporting, setExporting] = useState(false);
+  const printRef = useRef(null);
 
   // Calculate total stores
   const totalStores = inputs.storesNC + inputs.storesSC + inputs.storesTX + inputs.storesMS + inputs.storesAR;
@@ -164,6 +171,81 @@ export default function Calculator() {
       setSaveStatus('saved');
       setLastSaved(new Date());
       setTimeout(() => setSaveStatus(''), 3000);
+    }
+  };
+
+  // Export to PDF
+  const exportToPDF = async () => {
+    if (!printRef.current) return;
+
+    setExporting(true);
+
+    try {
+      const element = printRef.current;
+
+      // Create canvas from the print-ready element
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        windowWidth: 1100,
+        windowHeight: element.scrollHeight
+      });
+
+      // Calculate dimensions - Letter size (8.5 x 11 inches)
+      const imgWidth = 215.9; // mm (8.5 inches)
+      const pageHeight = 279.4; // mm (11 inches)
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      // Create PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'letter'
+      });
+
+      let heightLeft = imgHeight;
+      let position = 0;
+      const margin = 0;
+
+      // Add first page
+      pdf.addImage(
+        canvas.toDataURL('image/png', 1.0),
+        'PNG',
+        margin,
+        position,
+        imgWidth - (margin * 2),
+        imgHeight
+      );
+
+      heightLeft -= pageHeight;
+
+      // Add additional pages if needed
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(
+          canvas.toDataURL('image/png', 1.0),
+          'PNG',
+          margin,
+          position,
+          imgWidth - (margin * 2),
+          imgHeight
+        );
+        heightLeft -= pageHeight;
+      }
+
+      // Download the PDF
+      const date = new Date().toISOString().split('T')[0];
+      pdf.save(`Refuel-Training-Cost-Analysis-${date}.pdf`);
+
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error generating PDF. Please try again.');
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -342,8 +424,19 @@ export default function Calculator() {
 
   return (
     <div className="container">
-      <h1>Refuel Operating Company</h1>
-      <p className="subtitle">Interactive Training Cost Calculator - RTO360 vs Trike</p>
+      {/* Top Header with Logo and Export */}
+      <div className="top-header">
+        <div className="top-header-left">
+          <h1>Refuel Operating Company</h1>
+          <p className="subtitle">Interactive Training Cost Calculator - RTO360 vs Trike</p>
+        </div>
+        <div className="top-header-right">
+          <img src="/trike-logo.svg" alt="Trike" className="header-logo" />
+          <button className="export-btn-secondary" onClick={exportToPDF} disabled={exporting}>
+            {exporting ? 'Generating...' : 'Export to PDF'}
+          </button>
+        </div>
+      </div>
 
       {/* Company Data */}
       <div className="section">
@@ -901,9 +994,348 @@ export default function Calculator() {
             Last saved: {lastSaved.toLocaleString()}
           </span>
         )}
+        <button className="secondary" onClick={exportToPDF} disabled={exporting}>
+          {exporting ? 'Generating PDF...' : 'Export to PDF'}
+        </button>
         <button className="primary" onClick={saveCalculation}>
           Save Changes
         </button>
+      </div>
+
+      {/* Hidden Print-Ready Component for PDF Export */}
+      <div className="print-container" ref={printRef}>
+        <div className="print-page">
+          {/* Header with Logo */}
+          <div className="print-header">
+            <div className="print-header-left">
+              <h1 className="print-title">Training Cost Analysis</h1>
+              <p className="print-subtitle">Refuel Operating Company</p>
+              <p className="print-date">Generated: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            </div>
+            <div className="print-header-right">
+              <img src={TRIKE_LOGO_BASE64} alt="Trike" className="print-logo" />
+            </div>
+          </div>
+
+          {/* Executive Summary */}
+          <div className="print-summary-banner">
+            <div className="print-summary-main">
+              <div className="print-summary-label">Total Annual Value</div>
+              <div className="print-summary-value">{formatCurrency(totalSavingsValue)}</div>
+            </div>
+            <div className="print-summary-breakdown">
+              <div className="print-summary-item">
+                <span className="label">Direct Savings</span>
+                <span className="value">{formatCurrency(directSavings)}</span>
+              </div>
+              <div className="print-summary-item">
+                <span className="label">Labor Recapture</span>
+                <span className="value">{formatCurrency(laborSavings)}</span>
+              </div>
+              <div className="print-summary-item">
+                <span className="label">ROI Multiple</span>
+                <span className="value">{roiMultiple}x</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Compact Org Info - Single Line */}
+          <div className="print-org-summary">
+            <span><strong>{totalStores}</strong> Stores</span>
+            <span className="divider">|</span>
+            <span><strong>{inputs.totalEmployees.toLocaleString()}</strong> Employees</span>
+            <span className="divider">|</span>
+            <span><strong>{inputs.frontlineTurnover}%</strong> Annual Turnover</span>
+            <span className="divider">|</span>
+            <span><strong>{pops.frontlineTurnoverTotal.toLocaleString()}</strong> Trained/Year</span>
+          </div>
+
+          {/* Cost Comparison */}
+          <div className="print-section">
+            <h2 className="print-section-title">Annual Cost Comparison</h2>
+            <div className="print-comparison-table">
+              <div className="print-comparison-header">
+                <span></span>
+                <span>RTO360 (Current)</span>
+                <span>Trike (Proposed)</span>
+                <span>Savings</span>
+              </div>
+              <div className="print-comparison-row">
+                <span className="label">Platform Costs</span>
+                <span>{formatCurrency(rtoPlatformAnnual)}</span>
+                <span>{formatCurrency(trikePlatformAnnual)}</span>
+                <span className="savings">{formatCurrency(rtoPlatformAnnual - trikePlatformAnnual)}</span>
+              </div>
+              <div className="print-comparison-row">
+                <span className="label">Training/Certification</span>
+                <span>{formatCurrency(rtoCoursesTotal)}</span>
+                <span>{formatCurrency(trikeCoursesTotal)}</span>
+                <span className="savings">{formatCurrency(rtoCoursesTotal - trikeCoursesTotal)}</span>
+              </div>
+              <div className="print-comparison-row">
+                <span className="label">Additional Tools</span>
+                <span>{formatCurrency(rtoToolsTotal)}</span>
+                <span className="included">Included</span>
+                <span className="savings">{formatCurrency(rtoToolsTotal)}</span>
+              </div>
+              <div className="print-comparison-row total">
+                <span className="label">Annual Total</span>
+                <span>{formatCurrency(rtoGrandTotal)}</span>
+                <span className="highlight">{formatCurrency(trikeGrandTotal)}</span>
+                <span className="savings highlight">{formatCurrency(directSavings)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Labor Impact */}
+          <div className="print-section">
+            <h2 className="print-section-title">Labor Cost Impact</h2>
+            <div className="print-labor-grid">
+              <div className="print-labor-card">
+                <h3>RTO360 (Current)</h3>
+                <div className="print-labor-row">
+                  <span>Training Time/Employee</span>
+                  <span>{rtoHoursPerEmployee.toFixed(2)} hrs</span>
+                </div>
+                <div className="print-labor-row">
+                  <span>Total Training Hours</span>
+                  <span>{Math.round(rtoTotalHours).toLocaleString()} hrs</span>
+                </div>
+                <div className="print-labor-row total">
+                  <span>Annual Labor Cost</span>
+                  <span>{formatCurrency(rtoTotalHours * inputs.avgHourlyRate)}</span>
+                </div>
+              </div>
+              <div className="print-labor-card highlight">
+                <h3>Trike (Proposed)</h3>
+                <div className="print-labor-row">
+                  <span>Training Time/Employee</span>
+                  <span>{trikeHoursPerEmployee.toFixed(2)} hrs</span>
+                </div>
+                <div className="print-labor-row">
+                  <span>Total Training Hours</span>
+                  <span>{Math.round(trikeTotalHours).toLocaleString()} hrs</span>
+                </div>
+                <div className="print-labor-row total">
+                  <span>Annual Labor Cost</span>
+                  <span>{formatCurrency(trikeTotalHours * inputs.avgHourlyRate)}</span>
+                </div>
+              </div>
+              <div className="print-labor-card savings">
+                <h3>Savings</h3>
+                <div className="print-labor-row">
+                  <span>Time Reduction</span>
+                  <span>{timeReduction}%</span>
+                </div>
+                <div className="print-labor-row">
+                  <span>Hours Saved/Year</span>
+                  <span>{Math.round(hoursSaved).toLocaleString()} hrs</span>
+                </div>
+                <div className="print-labor-row total">
+                  <span>Labor Recapture</span>
+                  <span>{formatCurrency(laborSavings)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Training Breakdown */}
+          <div className="print-section">
+            <h2 className="print-section-title">Training Program Details</h2>
+            <div className="print-training-table">
+              <div className="print-training-header">
+                <span>Training Component</span>
+                <span>Population</span>
+                <span>RTO360</span>
+                <span>Trike</span>
+                <span>Saved</span>
+              </div>
+              <div className="print-training-row">
+                <span>Core Onboarding</span>
+                <span>{pops.frontlineTurnoverTotal.toLocaleString()}</span>
+                <span>{rtoCoreHours.toFixed(2)} hrs</span>
+                <span>{trikeCoreHours.toFixed(2)} hrs</span>
+                <span className="savings">{(rtoCoreHours - trikeCoreHours).toFixed(2)} hrs</span>
+              </div>
+              <div className="print-training-row">
+                <span>TX TABC Certification</span>
+                <span>{pops.txFrontlineTurnover.toLocaleString()}</span>
+                <span>{inputs.rtoTXTABCHours} hrs</span>
+                <span>{inputs.trikeTXTABCHours} hrs</span>
+                <span className="savings">{(inputs.rtoTXTABCHours - inputs.trikeTXTABCHours).toFixed(2)} hrs</span>
+              </div>
+              <div className="print-training-row">
+                <span>TX Food Handler</span>
+                <span>{pops.txFrontlineTurnover.toLocaleString()}</span>
+                <span>{inputs.rtoTXFHHours} hrs</span>
+                <span>{inputs.trikeTXFHHours} hrs</span>
+                <span className="savings">{(inputs.rtoTXFHHours - inputs.trikeTXFHHours).toFixed(2)} hrs</span>
+              </div>
+              <div className="print-training-row">
+                <span>SC Food Handler</span>
+                <span>{pops.scFrontlineTurnover.toLocaleString()}</span>
+                <span>{inputs.rtoSCFHHours} hrs</span>
+                <span>{inputs.trikeSCFHHours} hrs</span>
+                <span className="savings">{(inputs.rtoSCFHHours - inputs.trikeSCFHHours).toFixed(2)} hrs</span>
+              </div>
+            </div>
+          </div>
+
+          {/* PAGE 2 - Visual Charts */}
+          <div className="print-page-break"></div>
+
+          {/* Page 2 Header */}
+          <div className="print-header-small">
+            <span className="print-header-small-title">Training Cost Analysis — Refuel Operating Company</span>
+            <img src={TRIKE_LOGO_BASE64} alt="Trike" className="print-logo-small" />
+          </div>
+
+          {/* Total Cost Comparison Visual */}
+          <div className="print-section">
+            <h2 className="print-section-title">Total Annual Cost Comparison</h2>
+            <div className="print-chart-container">
+              <div className="print-bar-chart">
+                <div className="print-bar-row">
+                  <div className="print-bar-label">
+                    <span className="name">RTO360 (Current)</span>
+                    <span className="amount">{formatCurrency(rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))}</span>
+                  </div>
+                  <div className="print-bar-track">
+                    <div className="print-bar rto" style={{width: '100%'}}></div>
+                  </div>
+                </div>
+                <div className="print-bar-row">
+                  <div className="print-bar-label">
+                    <span className="name">Trike (Proposed)</span>
+                    <span className="amount">{formatCurrency(trikeGrandTotal + (trikeTotalHours * inputs.avgHourlyRate))}</span>
+                  </div>
+                  <div className="print-bar-track">
+                    <div className="print-bar trike" style={{width: `${((trikeGrandTotal + (trikeTotalHours * inputs.avgHourlyRate)) / (rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))) * 100}%`}}></div>
+                  </div>
+                </div>
+              </div>
+              <div className="print-chart-legend">
+                <div className="legend-item"><span className="dot platform"></span> Platform & Training Costs</div>
+                <div className="legend-item"><span className="dot labor"></span> Labor Costs (Training Time)</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stacked Cost Breakdown */}
+          <div className="print-section">
+            <h2 className="print-section-title">Cost Breakdown by Category</h2>
+            <div className="print-stacked-chart">
+              <div className="print-stacked-row">
+                <div className="print-stacked-label">RTO360</div>
+                <div className="print-stacked-bars">
+                  <div className="print-stacked-segment platform" style={{width: `${(rtoPlatformAnnual / (rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))) * 100}%`}}>
+                    <span className="segment-label">Platform</span>
+                  </div>
+                  <div className="print-stacked-segment training" style={{width: `${(rtoCoursesTotal / (rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))) * 100}%`}}>
+                    <span className="segment-label">Training</span>
+                  </div>
+                  <div className="print-stacked-segment tools" style={{width: `${(rtoToolsTotal / (rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))) * 100}%`}}>
+                    <span className="segment-label">Tools</span>
+                  </div>
+                  <div className="print-stacked-segment labor" style={{width: `${((rtoTotalHours * inputs.avgHourlyRate) / (rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))) * 100}%`}}>
+                    <span className="segment-label">Labor</span>
+                  </div>
+                </div>
+                <div className="print-stacked-total">{formatCurrency(rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))}</div>
+              </div>
+              <div className="print-stacked-row">
+                <div className="print-stacked-label">Trike</div>
+                <div className="print-stacked-bars">
+                  <div className="print-stacked-segment platform" style={{width: `${(trikePlatformAnnual / (rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))) * 100}%`}}>
+                    <span className="segment-label">Platform</span>
+                  </div>
+                  <div className="print-stacked-segment training" style={{width: `${(trikeCoursesTotal / (rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))) * 100}%`}}>
+                    <span className="segment-label">Training</span>
+                  </div>
+                  <div className="print-stacked-segment labor" style={{width: `${((trikeTotalHours * inputs.avgHourlyRate) / (rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))) * 100}%`}}>
+                    <span className="segment-label">Labor</span>
+                  </div>
+                </div>
+                <div className="print-stacked-total">{formatCurrency(trikeGrandTotal + (trikeTotalHours * inputs.avgHourlyRate))}</div>
+              </div>
+            </div>
+            <div className="print-stacked-legend">
+              <span><span className="dot platform"></span> Platform</span>
+              <span><span className="dot training"></span> Training/Certs</span>
+              <span><span className="dot tools"></span> Add&apos;l Tools</span>
+              <span><span className="dot labor"></span> Labor</span>
+            </div>
+          </div>
+
+          {/* 3-Year Cumulative Savings */}
+          <div className="print-section">
+            <h2 className="print-section-title">3-Year Cumulative Savings Projection</h2>
+            <div className="print-projection-chart">
+              <div className="print-projection-grid">
+                <div className="print-projection-year">
+                  <div className="year-label">Year 1</div>
+                  <div className="year-bars">
+                    <div className="year-bar rto">
+                      <span className="bar-value">{formatCurrency(rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))}</span>
+                      <div className="bar-fill" style={{height: '120px'}}></div>
+                      <span className="bar-label">RTO360</span>
+                    </div>
+                    <div className="year-bar trike">
+                      <span className="bar-value">{formatCurrency(trikeGrandTotal + (trikeTotalHours * inputs.avgHourlyRate))}</span>
+                      <div className="bar-fill" style={{height: `${Math.round(((trikeGrandTotal + (trikeTotalHours * inputs.avgHourlyRate)) / (rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))) * 120)}px`}}></div>
+                      <span className="bar-label">Trike</span>
+                    </div>
+                  </div>
+                  <div className="year-savings">Save {formatCurrency(totalSavingsValue)}</div>
+                </div>
+                <div className="print-projection-year">
+                  <div className="year-label">Year 2</div>
+                  <div className="year-bars">
+                    <div className="year-bar rto">
+                      <span className="bar-value">{formatCurrency((rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate)) * 2)}</span>
+                      <div className="bar-fill" style={{height: '120px'}}></div>
+                      <span className="bar-label">RTO360</span>
+                    </div>
+                    <div className="year-bar trike">
+                      <span className="bar-value">{formatCurrency((trikeGrandTotal + (trikeTotalHours * inputs.avgHourlyRate)) * 2)}</span>
+                      <div className="bar-fill" style={{height: `${Math.round(((trikeGrandTotal + (trikeTotalHours * inputs.avgHourlyRate)) / (rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))) * 120)}px`}}></div>
+                      <span className="bar-label">Trike</span>
+                    </div>
+                  </div>
+                  <div className="year-savings">Save {formatCurrency(totalSavingsValue * 2)}</div>
+                </div>
+                <div className="print-projection-year">
+                  <div className="year-label">Year 3</div>
+                  <div className="year-bars">
+                    <div className="year-bar rto">
+                      <span className="bar-value">{formatCurrency((rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate)) * 3)}</span>
+                      <div className="bar-fill" style={{height: '120px'}}></div>
+                      <span className="bar-label">RTO360</span>
+                    </div>
+                    <div className="year-bar trike">
+                      <span className="bar-value">{formatCurrency((trikeGrandTotal + (trikeTotalHours * inputs.avgHourlyRate)) * 3)}</span>
+                      <div className="bar-fill" style={{height: `${Math.round(((trikeGrandTotal + (trikeTotalHours * inputs.avgHourlyRate)) / (rtoGrandTotal + (rtoTotalHours * inputs.avgHourlyRate))) * 120)}px`}}></div>
+                      <span className="bar-label">Trike</span>
+                    </div>
+                  </div>
+                  <div className="year-savings">Save {formatCurrency(totalSavingsValue * 3)}</div>
+                </div>
+              </div>
+              <div className="print-projection-summary">
+                <div className="projection-total">
+                  <span className="projection-label">3-Year Total Savings</span>
+                  <span className="projection-value">{formatCurrency(totalSavingsValue * 3)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Footer */}
+          <div className="print-footer">
+            <p>This analysis is based on current operational data and Trike&apos;s proposed pricing.</p>
+            <p>For questions, contact your Trike representative.</p>
+          </div>
+        </div>
       </div>
     </div>
   );
